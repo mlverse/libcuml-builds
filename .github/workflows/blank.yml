@@ -57,7 +57,7 @@ jobs:
       - name: Build arrow with cuda
         run: |
           git clone https://github.com/apache/arrow
-          cd arrow
+          cd arrow/cpp
           mkdir build
           cd build
           cmake .. -DARROW_CUDA=ON -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs/ -DCMAKE_INSTALL_PREFIX=/libcudf/arrow
