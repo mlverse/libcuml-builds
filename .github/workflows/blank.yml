@@ -59,6 +59,7 @@ jobs:
           git clone https://github.com/apache/arrow
           cd arrow
           mkdir build
+          cd build
           cmake .. -DARROW_CUDA=ON -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs/ -DCMAKE_INSTALL_PREFIX=/libcudf/arrow
           cmake --build . --parallel 8
           make install
@@ -68,7 +69,18 @@ jobs:
           git clone https://github.com/google/re2
           cd re2
           mkdir build
+          cd build
           cmake -DCMAKE_INSTALL_PREFIX=/libcudf/re2
+          cmake --build . --parallel 8
+          make install
+      
+      - name: Build rmm
+        run: |
+          git clone https://github.com/rapidsai/rmm
+          cd rmm
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/libcudf/rmm
           cmake --build . --parallel 8
           make install
       
