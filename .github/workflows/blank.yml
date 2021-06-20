@@ -21,6 +21,7 @@ jobs:
     env:
       CUDF_HOME: cudf
       DEBIAN_FRONTEND: 'noninteractive'
+      INSTALL_PREFIX: /libcudf
     
     defaults:
       run:
@@ -57,4 +58,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: libcudf
-          path: cudf/
+          path: /libcudf
