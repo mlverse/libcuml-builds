@@ -19,7 +19,7 @@ jobs:
       options: --gpus all
       
     env:
-      CUDF_HOME: /cudf
+      CUDF_HOME: cudf
       DEBIAN_FRONTEND: 'noninteractive'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
