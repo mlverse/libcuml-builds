@@ -26,6 +26,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
+      - run: |
+          apt-get update -y
+          apt-get install -y sudo software-properties-common dialog apt-utils tzdata git
+      
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
