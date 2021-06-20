@@ -21,7 +21,7 @@ jobs:
     env:
       CUDF_HOME: cudf
       DEBIAN_FRONTEND: 'noninteractive'
-      INSTALL_PREFIX: /libcudf
+      INSTALL_PREFIX: /libcudf/libcudf
     
     defaults:
       run:
@@ -81,6 +81,14 @@ jobs:
           mkdir build
           cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=/libcudf/rmm
+          cmake --build . --parallel 8
+          make install
+          
+      - name: Build spdlog
+        run: |
+          git clone https://github.com/gabime/spdlog.git
+          cd spdlog && mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/libcudf/spdlog
           cmake --build . --parallel 8
           make install
       
