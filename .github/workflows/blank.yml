@@ -94,7 +94,7 @@ jobs:
           
       - uses: papeloto/action-zip@v1
         with:
-          files: /libcudf/
+          files: /libcudf
           dest: libcudf.zip
           
       - name: Release
