@@ -102,6 +102,7 @@ jobs:
         with:
           files: libcudf.zip
           name: Nightly
+          tag_name: nightly
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
