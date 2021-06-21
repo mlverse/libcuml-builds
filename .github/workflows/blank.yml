@@ -32,7 +32,7 @@ jobs:
 
       - run: |
           apt-get update -y
-          apt-get install -y sudo software-properties-common dialog apt-utils git
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip
       
       - uses: actions/checkout@v2
         
@@ -92,10 +92,8 @@ jobs:
           cmake --build . --parallel 8
           make install
           
-      - uses: papeloto/action-zip@v1
-        with:
-          files: /libcudf
-          dest: libcudf.zip
+      - run: |
+          zip -r libcudf.zip /libcudf
           
       - name: Release
         uses: softprops/action-gh-release@v1
