@@ -91,6 +91,19 @@ jobs:
           cmake .. -DCMAKE_INSTALL_PREFIX=/libcudf
           cmake --build . --parallel 8
           make install
+          
+      - uses: papeloto/action-zip@v1
+        with:
+          files: /libcudf/
+          dest: libcudf.zip
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: libcudf.zip
+          name: Nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - uses: actions/upload-artifact@v2
         with:
