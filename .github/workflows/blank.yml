@@ -32,7 +32,7 @@ jobs:
 
       - run: |
           apt-get update -y
-          apt-get install -y sudo software-properties-common dialog apt-utils git zip
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential
       
       - uses: actions/checkout@v2
         
