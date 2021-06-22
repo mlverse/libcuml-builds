@@ -32,7 +32,7 @@ jobs:
 
       - run: |
           apt-get update -y
-          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential gcc-8
       
       - uses: actions/checkout@v2
         
