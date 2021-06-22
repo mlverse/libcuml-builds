@@ -15,7 +15,7 @@ jobs:
     
     runs-on: self-hosted
     container:
-      image: nvidia/cuda:11.0.3-devel-ubuntu18.04
+      image: nvidia/cuda:11.0.3-devel-ubuntu20.04
       options: --gpus all
       
     env:
@@ -32,9 +32,7 @@ jobs:
 
       - run: |
           apt-get update -y
-          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential gcc-8
-          update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 700 --slave /usr/bin/g++ g++ /usr/bin/g++-7
-          update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential
       
       - uses: actions/checkout@v2
         
