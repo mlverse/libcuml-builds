@@ -56,7 +56,7 @@ jobs:
           
       - name: Build arrow with cuda
         run: |
-          git clone --branch apache-arrow-1.0.0 https://github.com/apache/arrow
+          git clone --branch apache-arrow-1.0.1 https://github.com/apache/arrow
           cd arrow/cpp
           mkdir build
           cd build
