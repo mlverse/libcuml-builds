@@ -45,7 +45,7 @@ jobs:
 
       - name: Build libcudf
         run: |
-          cd cudf
+          cd cuml
           ./build.sh libcuml -v -allgpuarch --singlegpu
           
       - run: |
