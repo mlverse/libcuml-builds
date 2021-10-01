@@ -49,10 +49,18 @@ jobs:
           activate-environment: cuml_dev
           environment-file: cuml/conda/environments/cuml_dev_cuda11.2.yml
 
-      - name: Build libcudf
+      - name: Build libcuml
         run: |
           cd cuml
           ./build.sh libcuml -v --allgpuarch --singlegpu
+          
+      - name: Build spdlog
+        run: |
+          git clone https://github.com/gabime/spdlog.git
+          cd spdlog && mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
+          cmake --build . --parallel 8
+          make install
           
       - run: |
           zip -r libcuml.zip /libcuml
