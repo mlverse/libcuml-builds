@@ -1,5 +1,5 @@
 
-name: Build libcudf
+name: Build libcuml
 
 on:
   workflow_dispatch:
