@@ -1,0 +1,73 @@
+name: Build libcudf
+
+on:
+  workflow_dispatch:
+
+jobs:
+ 
+  build:
+    
+    runs-on: self-hosted
+    container:
+      image: nvidia/cuda:11.0.3-devel-ubuntu18.04
+      options: --gpus all
+      
+    env:
+      CUML_HOME: cuml
+      DEBIAN_FRONTEND: 'noninteractive'
+      INSTALL_PREFIX: /libcuml
+    
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      - run: |
+          apt-get update -y
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential
+          
+      - run: |
+          add-apt-repository ppa:ubuntu-toolchain-r/test
+          apt update -y
+          apt install -y gcc-9 g++-9
+          update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+      
+      - uses: actions/checkout@v2
+        
+      # Runs a single command using the runners shell
+      - name: Clone cuml repository
+        run: |
+          git clone https://github.com/rapidsai/cuml.git $CUML_HOME
+          cd $CUML_HOME
+          git submodule update --init --remote --recursive
+
+      - name: Build libcudf
+        run: |
+          cd cudf
+          ./build.sh libcuml -v -allgpuarch --singlegpu
+          
+      - run: |
+          zip -r libcuml.zip /libcuml
+          
+      - name: Delete old release assets
+        uses: mknejp/delete-release-assets@v1
+        with:
+          token: ${{ github.token }}
+          tag: nightly
+          assets: libcuml.zip
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: libcuml.zip
+          name: Nightly
+          tag_name: nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: libcuml
+          path: /libcuml
