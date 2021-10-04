@@ -56,7 +56,7 @@ jobs:
           
       - name: Build spdlog
         run: |
-          git clone https://github.com/gabime/spdlog.git
+          git clone --single-branch --branch v1.7.0 https://github.com/gabime/spdlog.git
           cd spdlog && mkdir build && cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
           cmake --build . --parallel 8
