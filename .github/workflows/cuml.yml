@@ -43,6 +43,11 @@ jobs:
           cd $CUML_HOME
           git submodule update --init --remote --recursive
           
+      - name: Patch the env file
+        run: |
+          echo "channel_priority: true" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
+          cat cuml/conda/environments/cuml_dev_cuda11.0.yml
+          
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
