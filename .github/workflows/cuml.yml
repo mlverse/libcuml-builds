@@ -39,21 +39,21 @@ jobs:
       # Runs a single command using the runners shell
       - name: Clone cuml repository
         run: |
-          git clone --depth 1 --branch v0.19.0 https://github.com/rapidsai/cuml.git $CUML_HOME
+          git clone https://github.com/rapidsai/cuml.git $CUML_HOME
           cd $CUML_HOME
           git submodule update --init --remote --recursive
-          
-      - name: Patch the env file
-        run: |
-          echo "channel_priority: strict" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
-          echo "# strict channel" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
-          cat cuml/conda/environments/cuml_dev_cuda11.0.yml
           
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
           activate-environment: cuml_dev
           environment-file: cuml/conda/environments/cuml_dev_cuda11.0.yml
+          
+      - name: GO to branch
+        run : |
+          cd $CUML_HOME
+          git checkout v0.19.0
+          git submodule update
 
       - name: Build libcuml
         run: |
