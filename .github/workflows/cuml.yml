@@ -45,7 +45,8 @@ jobs:
           
       - name: Patch the env file
         run: |
-          echo "channel_priority: true" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
+          echo "channel_priority: strict" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
+          echo "# strict channel" >> cuml/conda/environments/cuml_dev_cuda11.0.yml
           cat cuml/conda/environments/cuml_dev_cuda11.0.yml
           
       - uses: conda-incubator/setup-miniconda@v2
