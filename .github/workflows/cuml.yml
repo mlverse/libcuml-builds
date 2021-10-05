@@ -43,12 +43,12 @@ jobs:
           cd $CUML_HOME
           git submodule update --init --remote --recursive
           
-      - uses: conda-incubator/setup-miniconda@v2
+          
+      - name: install mamba
+        uses: mamba-org/provision-with-micromamba@main
         with:
-          miniconda-version: "latest"
-          channel-priority: strict
-          activate-environment: cuml_dev
           environment-file: cuml/conda/environments/cuml_dev_cuda11.0.yml
+          environment-name: cuml_dev
           
       - name: Build libcuml
         run: |
