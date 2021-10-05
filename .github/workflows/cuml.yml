@@ -26,13 +26,7 @@ jobs:
 
       - run: |
           apt-get update -y
-          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential
-          
-      - run: |
-          add-apt-repository ppa:ubuntu-toolchain-r/test
-          apt update -y
-          apt install -y gcc-9 g++-9
-          update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+          apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential wget
       
       - uses: actions/checkout@v2
         
