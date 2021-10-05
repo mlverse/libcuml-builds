@@ -45,6 +45,7 @@ jobs:
           
       - uses: conda-incubator/setup-miniconda@v2
         with:
+          miniconda-version: "latest"
           channel-priority: strict
           activate-environment: cuml_dev
           environment-file: cuml/conda/environments/cuml_dev_cuda11.0.yml
