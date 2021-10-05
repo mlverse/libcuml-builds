@@ -42,7 +42,7 @@ jobs:
         with:
           miniconda-version: "latest"
           activate-environment: cudf_dev
-          environment-file: cudf/conda/environments/cuml_dev_cuda11.2.yml
+          environment-file: cuml/conda/environments/cuml_dev_cuda11.2.yml
           
       - name: Build libcuml
         run: |
