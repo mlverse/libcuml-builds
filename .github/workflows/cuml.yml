@@ -47,7 +47,7 @@ jobs:
       - name: Install mamba and install packages
         run: |
           conda install mamba -n base -c conda-forge
-          mamba install --file cuml/conda/environments/cuml_dev_cuda11.2.yml
+          mamba env update --file=cuml/conda/environments/cuml_dev_cuda11.2.yml
           
       - name: Build libcuml
         run: |
