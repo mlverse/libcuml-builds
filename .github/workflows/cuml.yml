@@ -44,9 +44,9 @@ jobs:
           miniconda-version: "latest"
           activate-environment: cudf_dev
       
-      - name: Install mambda and install packages
+      - name: Install mamba and install packages
         run: |
-          conda install mambda
+          conda install mamba
           mamba install --file cuml/conda/environments/cuml_dev_cuda11.2.yml
           
       - name: Build libcuml
