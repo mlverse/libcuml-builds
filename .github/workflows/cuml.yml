@@ -54,11 +54,13 @@ jobs:
         env: 
           CUML_EXTRA_CMAKE_ARGS: "-DBUILD_CUML_C_LIBRARY=OFF -DBUILD_CUML_TESTS=OFF -DBUILD_PRIMS_TESTS=OFF -DBUILD_CUML_EXAMPLES=OFF -DBUILD_CUML_BENCH=OFF -DBUILD_CUML_PRIMS_BENCH=OFF"
         run: |
+          conda activate cuml_dev
           cd cuml
           ./build.sh libcuml -v --allgpuarch --singlegpu
           
       - name: Build spdlog
         run: |
+          conda activate cuml_dev
           git clone --single-branch --branch v1.7.0 https://github.com/gabime/spdlog.git
           cd spdlog && mkdir build && cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
@@ -67,6 +69,7 @@ jobs:
           
       - name: Build treelite
         run: |
+          conda activate cuml_dev
           git clone https://github.com/dmlc/treelite.git
           cd treelite && mkdir build && cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
