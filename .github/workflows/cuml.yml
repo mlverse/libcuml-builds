@@ -33,7 +33,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Clone cuml repository
         run: |
-          git clone --depth 1 --branch v21.06.00 https://github.com/rapidsai/cuml.git $CUML_HOME
+          git clone --depth 1 --branch branch-21.06 https://github.com/rapidsai/cuml.git $CUML_HOME
           cd $CUML_HOME
           git submodule update --init --remote --recursive
           
