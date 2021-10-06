@@ -43,7 +43,11 @@ jobs:
           channel-priority: true
           miniconda-version: "latest"
           activate-environment: cudf_dev
-          environment-file: cuml/conda/environments/cuml_dev_cuda11.2.yml
+      
+      - name: Install mambda and install packages
+        run: |
+          conda install mambda
+          mamba install --file cuml/conda/environments/cuml_dev_cuda11.2.yml
           
       - name: Build libcuml
         run: |
