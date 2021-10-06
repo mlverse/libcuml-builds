@@ -40,6 +40,7 @@ jobs:
           
       - uses: conda-incubator/setup-miniconda@v2
         with:
+          channel-priority: strict
           miniconda-version: "latest"
           activate-environment: cudf_dev
           environment-file: cuml/conda/environments/cuml_dev_cuda11.2.yml
@@ -47,7 +48,7 @@ jobs:
       - name: Build libcuml
         run: |
           cd cuml
-          ./build.sh libcuml -v --allgpuarch --singlegpu
+          CUML_EXTRA_CMAKE_ARGS=\"-DBUILD_CUML_C_LIBRARY=OFF -DBUILD_CUML_TESTS=OFF -DBUILD_PRIMS_TESTS=OFF -DBUILD_CUML_EXAMPLES=OFF -DBUILD_CUML_BENCH=OFF -DBUILD_CUML_PRIMS_BENCH=OFF\" ./build.sh libcuml -v --allgpuarch --singlegpu
           
       - name: Build spdlog
         run: |
