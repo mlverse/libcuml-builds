@@ -66,39 +66,7 @@ jobs:
             -DBUILD_CUML_PRIMS_BENCH=OFF \
             -DCMAKE_INSTALL_PREFIX=/libcuml
           cmake --build . --parallel 8
-          make install
-          
-      - name: Build spdlog
-        run: |
-          conda activate cuml_dev
-          git clone --single-branch --branch v1.7.0 https://github.com/gabime/spdlog.git
-          cd spdlog && mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
-          cmake --build . --parallel 8
-          make install
-          
-      - name: Build treelite
-        run: |
-          conda activate cuml_dev
-          git clone https://github.com/dmlc/treelite.git
-          cd treelite && mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
-          cmake --build . --parallel 8
-          make install
-          
-      - name: Build rmm
-        run: |
-          conda activate cuml_dev
-          git clone https://github.com/rapidsai/rmm
-          cd rmm
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
-          cmake --build . --parallel 8
-          make install
-          
-      - run: |
-          zip -r libcuml.zip /libcuml
+          cpack --config CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B /
           
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
@@ -119,4 +87,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: libcuml
-          path: /libcuml
+          path: /libcuml.zip
