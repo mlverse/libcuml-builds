@@ -51,13 +51,22 @@ jobs:
           conda activate cuml_dev
           
       - name: Build libcuml
-        env: 
-          CMAKE_GENERATOR: "Unix Makefiles"
-          CUML_EXTRA_CMAKE_ARGS: "-DBUILD_CUML_C_LIBRARY=OFF -DBUILD_CUML_TESTS=OFF -DBUILD_PRIMS_TESTS=OFF -DBUILD_CUML_EXAMPLES=OFF -DBUILD_CUML_BENCH=OFF -DBUILD_CUML_PRIMS_BENCH=OFF"
         run: |
           conda activate cuml_dev
           cd cuml
-          ./build.sh libcuml -v --allgpuarch --singlegpu
+          cd cpp
+          mkdir build
+          cd build
+          cmake .. \
+            -DSINGLEGPU=ON \
+            -DBUILD_CUML_TESTS=OFF \
+            -DBUILD_PRIMS_TESTS=OFF \
+            -DBUILD_CUML_EXAMPLES=OFF \
+            -DBUILD_CUML_BENCH=OFF \
+            -DBUILD_CUML_PRIMS_BENCH=OFF \
+            -DCMAKE_INSTALL_PREFIX=/libcuml
+          cmake --build . --parallel 8
+          make install
           
       - name: Build spdlog
         run: |
