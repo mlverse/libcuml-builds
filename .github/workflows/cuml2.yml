@@ -37,22 +37,13 @@ jobs:
           cd $CUML_HOME
           git submodule update --init --remote --recursive
           
-          
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
         with:
-          channel-priority: true
-          miniconda-version: "latest"
-          activate-environment: cudf_dev
-      
-      - name: Install mamba and install packages
-        run: |
-          conda install mamba -n base -c conda-forge
-          mamba env update --file=cuml/conda/environments/cuml_dev_cuda11.2.yml
-          conda activate cuml_dev
+          cmake-version: '3.21.x'
           
       - name: Build libcuml
         run: |
-          conda activate cuml_dev
           cd cuml
           cd cpp
           mkdir build
