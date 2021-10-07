@@ -86,6 +86,16 @@ jobs:
           cmake --build . --parallel 8
           make install
           
+      - name: Build rmm
+        run: |
+          git clone https://github.com/rapidsai/rmm
+          cd rmm
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/libcuml
+          cmake --build . --parallel 8
+          make install
+          
       - run: |
           zip -r libcuml.zip /libcuml
           
