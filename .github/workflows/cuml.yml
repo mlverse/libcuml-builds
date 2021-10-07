@@ -67,9 +67,9 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=/libcuml
           cmake --build . --parallel 8
           ls
-          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B ../..
+          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B ../../..
           ls
-          ls ../..
+          ls ../../..
           
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
