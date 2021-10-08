@@ -49,6 +49,7 @@ jobs:
           mkdir build
           cd build
           cmake .. \
+            -DCMAKE_CUDA_ARCHITECTURES=ALL \
             -DSINGLEGPU=ON \
             -DBUILD_CUML_TESTS=OFF \
             -DBUILD_PRIMS_TESTS=OFF \
