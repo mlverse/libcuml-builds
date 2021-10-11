@@ -6,10 +6,15 @@ on:
 jobs:
  
   build:
-    
+  
+    strategy:
+      matrix: 
+        cuda: ['11.4.2', '10.2']
+        cuml: ['21.08']
+        
     runs-on: self-hosted
     container:
-      image: nvidia/cuda:11.2.2-devel-ubuntu18.04
+      image: nvidia/cuda:${{ matrix.cuda }}-devel-ubuntu18.04
       options: --gpus all
       
     env:
@@ -33,7 +38,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Clone cuml repository
         run: |
-          git clone --single-branch --branch branch-21.08 https://github.com/rapidsai/cuml.git $CUML_HOME
+          git clone --single-branch --branch branch-${{ matrx.cuml }} https://github.com/rapidsai/cuml.git $CUML_HOME
           cd $CUML_HOME
           git submodule update --init --remote --recursive
           
@@ -61,23 +66,29 @@ jobs:
           cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B ../../..
           cat ./CPackConfig.cmake
           
+      - name: Rename file
+        run: |
+          mv libcuml.zip libcuml-cu${{ matrix.cuda }}.zip
+          
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
         with:
           token: ${{ github.token }}
-          tag: nightly
-          assets: libcuml.zip
+          tag: v${{ matrix.cuml }}
+          assets: libcuml-cu${{ matrix.cuda }}.zip
           
       - name: Release
+        if: ${{ always() }}
         uses: softprops/action-gh-release@v1
         with:
-          files: libcuml.zip
-          name: Nightly
-          tag_name: nightly
+          files: libcuml-cu${{ matrix.cuda }}.zip
+          name: v${{ matrix.cuml }}
+          tag_name: v${{ matrix.cuml }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
           name: libcuml
-          path: ./libcuml.zip
+          path: ./libcuml-cu${{ matrix.cuda }}.zip
