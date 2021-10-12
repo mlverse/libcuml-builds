@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix: 
         cuda: ['11.4.2']
-        cuml: ['21.08', '21.12']
+        cuml: ['21.08', '21.10']
         
     runs-on: self-hosted
     container:
