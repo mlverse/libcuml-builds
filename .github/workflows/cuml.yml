@@ -49,6 +49,8 @@ jobs:
           cmake-version: '3.21.x'
           
       - name: Build libcuml
+        env: 
+          CXXFLAGS: "-Wno-sign-compare"
         run: |
           cd cuml
           cd cpp
