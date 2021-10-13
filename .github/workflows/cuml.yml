@@ -8,6 +8,7 @@ jobs:
   build:
   
     strategy:
+      fail-fast: false
       matrix: 
         cuda: ['11.4.2']
         cuml: ['21.08', '21.10']
@@ -86,9 +87,3 @@ jobs:
           tag_name: v${{ matrix.cuml }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - uses: actions/upload-artifact@v2
-        if: ${{ always() }}
-        with:
-          name: libcuml
-          path: ./libcuml-cu${{ matrix.cuda }}.zip
