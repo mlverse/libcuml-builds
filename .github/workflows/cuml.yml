@@ -52,7 +52,7 @@ jobs:
         env:
           CXXFLAGS: "-Wno-sign-compare"
         run: |
-          cd cuml
+          cd $CUML_HOME
           cd cpp
           mkdir build
           cd build
@@ -66,12 +66,12 @@ jobs:
             -DBUILD_CUML_PRIMS_BENCH=OFF \
             -DCMAKE_INSTALL_PREFIX=/libcuml
           cmake --build . --parallel 8
-          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B ../../..
+          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml
           cat ./CPackConfig.cmake
 
       - name: Rename file
         run: |
-          mv libcuml.zip libcuml-cu${{ matrix.cuda }}.zip
+          mv $CUML_HOME/cpp/build/libcuml.zip libcuml-cu${{ matrix.cuda }}.zip
 
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
