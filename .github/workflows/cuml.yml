@@ -4,25 +4,25 @@ on:
   workflow_dispatch:
 
 jobs:
- 
+
   build:
-  
+
     strategy:
       fail-fast: false
-      matrix: 
-        cuda: ['11.4.2']
+      matrix:
+        cuda: ['11.4.2', '11.2.1']
         cuml: ['21.08']
-        
+
     runs-on: self-hosted
     container:
       image: nvidia/cuda:${{ matrix.cuda }}-devel-ubuntu18.04
       options: --gpus all
-      
+
     env:
-      CUML_HOME: cuml
+      CUML_HOME: /dev/shm/cuml
       DEBIAN_FRONTEND: 'noninteractive'
       INSTALL_PREFIX: /libcuml
-    
+
     defaults:
       run:
         shell: bash -l {0}
@@ -33,23 +33,23 @@ jobs:
       - run: |
           apt-get update -y
           apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential wget libblas-dev liblapack-dev
-      
+
       - uses: actions/checkout@v2
-        
+
       # Runs a single command using the runners shell
       - name: Clone cuml repository
         run: |
           git clone --single-branch --branch branch-${{ matrix.cuml }} https://github.com/rapidsai/cuml.git $CUML_HOME
           cd $CUML_HOME
           git submodule update --init --remote --recursive
-          
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
           cmake-version: '3.21.x'
-          
+
       - name: Build libcuml
-        env: 
+        env:
           CXXFLAGS: "-Wno-sign-compare"
         run: |
           cd cuml
@@ -68,18 +68,18 @@ jobs:
           cmake --build . --parallel 8
           cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml -B ../../..
           cat ./CPackConfig.cmake
-          
+
       - name: Rename file
         run: |
           mv libcuml.zip libcuml-cu${{ matrix.cuda }}.zip
-          
+
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
         with:
           token: ${{ github.token }}
           tag: v${{ matrix.cuml }}
           assets: libcuml-cu${{ matrix.cuda }}.zip
-          
+
       - name: Release
         if: ${{ always() }}
         uses: softprops/action-gh-release@v1
