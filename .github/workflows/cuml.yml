@@ -16,12 +16,12 @@ jobs:
     runs-on: self-hosted
     container:
       image: nvidia/cuda:${{ matrix.cuda }}-devel-ubuntu18.04
-      options: --gpus all
+      options: --gpus all --shm-size=8192m
 
     env:
-      CUML_HOME: cuml
+      CUML_HOME: /dev/shm/cuml
       DEBIAN_FRONTEND: 'noninteractive'
-      INSTALL_PREFIX: /libcuml
+      BUILD_ARTIFACT_NAME: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}.zip
 
     defaults:
       run:
@@ -52,10 +52,8 @@ jobs:
         env:
           CXXFLAGS: "-Wno-sign-compare"
         run: |
-          cd $CUML_HOME
-          cd cpp
-          mkdir build
-          cd build
+          mkdir -p "${CUML_HOME}/cpp/build"
+          cd "${CUML_HOME}/cpp/build"
           cmake .. \
             -DCMAKE_CUDA_ARCHITECTURES=ALL \
             -DSINGLEGPU=ON \
@@ -63,28 +61,28 @@ jobs:
             -DBUILD_PRIMS_TESTS=OFF \
             -DBUILD_CUML_EXAMPLES=OFF \
             -DBUILD_CUML_BENCH=OFF \
-            -DBUILD_CUML_PRIMS_BENCH=OFF \
-            -DCMAKE_INSTALL_PREFIX=/libcuml
+            -DBUILD_CUML_PRIMS_BENCH=OFF
           cmake --build . --parallel 8
           cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml
           cat ./CPackConfig.cmake
 
-      - name: Rename file
+      - name: Rename libcuml.zip
         run: |
-          mv $CUML_HOME/cpp/build/libcuml.zip libcuml-cu${{ matrix.cuda }}.zip
+          mv -v "${CUML_HOME}/cpp/build/libcuml.zip" "/dev/shm/${BUILD_ARTIFACT_NAME}"
 
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
         with:
           token: ${{ github.token }}
           tag: v${{ matrix.cuml }}
-          assets: libcuml-cu${{ matrix.cuda }}.zip
+          assets: ${{ env.BUILD_ARTIFACT_NAME }}
+        continue-on-error: true
 
       - name: Release
         if: ${{ always() }}
         uses: softprops/action-gh-release@v1
         with:
-          files: libcuml-cu${{ matrix.cuda }}.zip
+          files: ${{ env.BUILD_ARTIFACT_PATH }}
           name: v${{ matrix.cuml }}
           tag_name: v${{ matrix.cuml }}
         env:
