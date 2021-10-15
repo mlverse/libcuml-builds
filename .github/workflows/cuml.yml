@@ -19,7 +19,7 @@ jobs:
       options: --gpus all
 
     env:
-      CUML_HOME: /dev/shm/cuml
+      CUML_HOME: cuml
       DEBIAN_FRONTEND: 'noninteractive'
       INSTALL_PREFIX: /libcuml
 
