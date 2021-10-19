@@ -74,7 +74,7 @@ jobs:
         uses: mknejp/delete-release-assets@v1
         with:
           token: ${{ github.token }}
-          tag: v${{ matrix.cuml }}
+          tag: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}
           assets: ${{ env.BUILD_ARTIFACT_NAME }}
         continue-on-error: true
 
@@ -83,7 +83,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_ARTIFACT_PATH }}
-          name: v${{ matrix.cuml }}
-          tag_name: v${{ matrix.cuml }}
+          name: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}
+          tag_name: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
