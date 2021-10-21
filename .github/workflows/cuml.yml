@@ -10,8 +10,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cuda: ['11.4.2', '11.2.1']
-        cuml: ['21.08']
+        # cuda: ['11.4.2', '11.2.1']
+        cuda: ['11.2.1']  # TODO: 11.4.2
+        cuml: ['21.08', '21.12']
 
     runs-on: self-hosted
     container:
@@ -81,6 +82,12 @@ jobs:
         env:
           CXXFLAGS: "-Wno-sign-compare"
         run: |
+          find "${CUML_HOME}/cpp" \
+            -type f \
+            -name ConfigureCUDA\.cmake \
+            -exec sed -E -i -e s/'-Werror([,\ ]|=[A-Za-z\-]+)?'/''/g \
+            '{}' \;
+
           mkdir -p "${CUML_HOME}/cpp/build"
           cd "${CUML_HOME}/cpp/build"
           cmake .. \
