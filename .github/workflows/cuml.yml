@@ -21,7 +21,7 @@ jobs:
     env:
       CUML_HOME: /dev/shm/cuml
       DEBIAN_FRONTEND: 'noninteractive'
-      BUILD_ARTIFACT_NAME: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}.zip
+      BUILD_ARTIFACT_NAME: libcuml-${{ matrix.cuml }}-cuda${{ matrix.cuda }}
 
     defaults:
       run:
@@ -63,27 +63,23 @@ jobs:
             -DBUILD_CUML_BENCH=OFF \
             -DBUILD_CUML_PRIMS_BENCH=OFF
           cmake --build . --parallel 8
-          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=libcuml
           cat ./CPackConfig.cmake
-
-      - name: Rename libcuml.zip
-        run: |
-          mv -v "${CUML_HOME}/cpp/build/libcuml.zip" "/dev/shm/${BUILD_ARTIFACT_NAME}"
+          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
 
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
         with:
           token: ${{ github.token }}
-          tag: v${{ matrix.cuml }}
-          assets: ${{ env.BUILD_ARTIFACT_NAME }}
+          tag: v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
+          assets: ${{ env.BUILD_ARTIFACT_NAME }}.zip
         continue-on-error: true
 
       - name: Release
         if: ${{ always() }}
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.BUILD_ARTIFACT_PATH }}
-          name: v${{ matrix.cuml }}
-          tag_name: v${{ matrix.cuml }}
+          files: /dev/shm/${{ env.BUILD_ARTIFACT_NAME }}.zip
+          name: v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
+          tag_name: v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
