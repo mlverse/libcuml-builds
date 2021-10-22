@@ -29,12 +29,39 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - run: apt-get update -y
+      - run:
+          apt-get install -y curl jq
+      - name: Check if a release with the same name already exists
+        id: check-release-exists
+        run: |
+          EXISTING_RELEASES=$(curl https://api.github.com/repos/mlverse/libcuml-builds/releases | jq '.[].tag_name' | paste -sd ' ')
+          CURRENT_RELEASE=v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
+          echo "Name of the current release: '${CURRENT_RELEASE}'"
+
+          echo '::set-output name=exists::false'
+          for release in $EXISTING_RELEASES; do
+            if [[ "${release}" == '"'"${CURRENT_RELEASE}"'"' ]]; then
+              echo -e "\n\n"\
+                "A release with the same name already exists!\n"\
+                "\n"\
+                "If necessary, you can go to\n"\
+                "https://github.com/mlverse/libcuml-builds/releases/tag/${CURRENT_RELEASE}\n"\
+                "to manually delete the existing release first, and then\n"\
+                "re-launch this GitHub action to create another release with\n"\
+                "the same name as replacement.\n"
+              echo '::set-output name=exists::true'
+              break
+            fi
+          done
+        shell: bash
 
       - run: |
-          apt-get update -y
           apt-get install -y sudo software-properties-common dialog apt-utils git zip build-essential wget libblas-dev liblapack-dev
+        if: steps.check-release-exists.outputs.exists == 'false'
 
       - uses: actions/checkout@v2
+        if: steps.check-release-exists.outputs.exists == 'false'
 
       # Runs a single command using the runners shell
       - name: Clone cuml repository
@@ -42,11 +69,13 @@ jobs:
           git clone --single-branch --branch branch-${{ matrix.cuml }} https://github.com/rapidsai/cuml.git $CUML_HOME
           cd $CUML_HOME
           git submodule update --init --remote --recursive
+        if: steps.check-release-exists.outputs.exists == 'false'
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
           cmake-version: '3.21.x'
+        if: steps.check-release-exists.outputs.exists == 'false'
 
       - name: Build libcuml
         env:
@@ -65,17 +94,10 @@ jobs:
           cmake --build . --parallel 8
           cat ./CPackConfig.cmake
           cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
-
-      - name: Delete old release assets
-        uses: mknejp/delete-release-assets@v1
-        with:
-          token: ${{ github.token }}
-          tag: v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
-          assets: ${{ env.BUILD_ARTIFACT_NAME }}.zip
-        continue-on-error: true
+        if: steps.check-release-exists.outputs.exists == 'false'
 
       - name: Release
-        if: ${{ always() }}
+        if: steps.check-release-exists.outputs.exists == 'false'
         uses: softprops/action-gh-release@v1
         with:
           files: /dev/shm/${{ env.BUILD_ARTIFACT_NAME }}.zip
