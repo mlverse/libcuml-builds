@@ -82,7 +82,23 @@ jobs:
           CFLAGS: "-Wno-sign-compare"
           CXXFLAGS: "-Wno-sign-compare"
         run: |
-          find "${CUML_HOME}/cpp" -type f -name ConfigureCUDA\.cmake -exec sed -E -i -e s/'-Werror([,\ ]|=[A-Za-z\-]+)?'/''/g '{}' \;
+          find "${CUML_HOME}/cpp" \
+            -type f \
+            -name ConfigureCUDA\.cmake \
+            -exec sed -E -i -e s/'-Werror([,\ ]|=[A-Za-z\-]+)?'/''/g \
+            '{}' \;
+          [ -e "${CUML_HOME}/cpp/cmake/thirdparty/get_spdlog.cmake" ] && \
+            sed -i -e \
+              /'DOWNLOAD_ONLY\s\+YES'/g "${CUML_HOME}/cpp/cmake/thirdparty/get_spdlog.cmake"
+          [ -e "${CUML_HOME}/cpp/cmake/thirdparty/get_spdlog.cmake" ] && \
+            sed -i -e \
+              /'CPM_ARGS'/i'\        BUILD_EXPORT_SET    cuml-exports\n        INSTALL_EXPORT_SET  cuml-exports' \
+              "${CUML_HOME}/cpp/cmake/thirdparty/get_spdlog.cmake"
+
+          pushd "${CUML_HOME}"
+          git diff
+          popd
+
           mkdir -p "${CUML_HOME}/cpp/build"
           cd "${CUML_HOME}/cpp/build"
           cmake .. \
@@ -96,6 +112,7 @@ jobs:
           cmake --build . --parallel 8
           cat ./CPackConfig.cmake
           cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
+        shell: bash
         if: steps.check-release-exists.outputs.exists == 'false'
 
       - name: Release
