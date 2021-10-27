@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         cuda: ['11.4.2', '11.2.1']
-        cuml: ['21.08']
+        cuml: ['21.08', '21.10']
 
     runs-on: self-hosted
     container:
@@ -79,8 +79,10 @@ jobs:
 
       - name: Build libcuml
         env:
+          CFLAGS: "-Wno-sign-compare"
           CXXFLAGS: "-Wno-sign-compare"
         run: |
+          find "${CUML_HOME}/cpp" -type f -name ConfigureCUDA\.cmake -exec sed -E -i -e s/'-Werror([,\ ]|=[A-Za-z\-]+)?'/''/g '{}' \;
           mkdir -p "${CUML_HOME}/cpp/build"
           cd "${CUML_HOME}/cpp/build"
           cmake .. \
