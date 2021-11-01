@@ -102,6 +102,12 @@ jobs:
             cat ./CPackConfig.cmake
             cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
           else
+            # spdlog headers are not exported by cuML builds in version 21.10
+            # or above, but those headers are needed by {cuda.ml}
+            #
+            # The easiest workaround here is to simply build and install another
+            # copy of spdlog separately and bundle it together with the rest of
+            # the libcuml build artifacts.
             CUML_INSTALL_PREFIX=/dev/shm/${{ env.BUILD_ARTIFACT_NAME }}
             mkdir -pv "${CUML_INSTALL_PREFIX}"
             cmake -DCMAKE_INSTALL_PREFIX="${CUML_INSTALL_PREFIX}" -P cmake_install.cmake
