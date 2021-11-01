@@ -35,7 +35,7 @@ jobs:
       - name: Check if a release with the same name already exists
         id: check-release-exists
         run: |
-          EXISTING_RELEASES=$(curl https://api.github.com/repos/mlverse/libcuml-builds/releases | jq '.[].tag_name' | paste -sd ' ')
+          EXISTING_RELEASES=$(curl -L https://api.github.com/repos/mlverse/libcuml-builds/releases | jq '.[].tag_name' | paste -sd ' ')
           CURRENT_RELEASE=v${{ matrix.cuml }}-cuda${{ matrix.cuda }}
           echo "Name of the current release: '${CURRENT_RELEASE}'"
 
@@ -63,11 +63,10 @@ jobs:
       - uses: actions/checkout@v2
         if: steps.check-release-exists.outputs.exists == 'false'
 
-      # Runs a single command using the runners shell
       - name: Clone cuml repository
         run: |
           git clone --single-branch --branch branch-${{ matrix.cuml }} https://github.com/rapidsai/cuml.git $CUML_HOME
-          cd $CUML_HOME
+          cd "${CUML_HOME}"
           git submodule update --init --remote --recursive
         if: steps.check-release-exists.outputs.exists == 'false'
 
@@ -94,8 +93,43 @@ jobs:
             -DBUILD_CUML_BENCH=OFF \
             -DBUILD_CUML_PRIMS_BENCH=OFF
           cmake --build . --parallel 8
-          cat ./CPackConfig.cmake
-          cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
+        if: steps.check-release-exists.outputs.exists == 'false'
+
+      - name: Package libcuml and dependencies
+        run: |
+          cd "${CUML_HOME}/cpp/build"
+          if [[ ${{ matrix.cuml }} == '21.08' ]]; then
+            cat ./CPackConfig.cmake
+            cpack --config ./CPackConfig.cmake -G ZIP -D CPACK_PACKAGE_FILE_NAME=${BUILD_ARTIFACT_NAME} -B ../../..
+          else
+            # spdlog headers are not exported by cuML builds in version 21.10
+            # or above, but those headers are needed by {cuda.ml}
+            #
+            # The easiest workaround here is to simply build and install another
+            # copy of spdlog separately and bundle it together with the rest of
+            # the libcuml build artifacts.
+            CUML_INSTALL_PREFIX=/dev/shm/${{ env.BUILD_ARTIFACT_NAME }}
+            mkdir -pv "${CUML_INSTALL_PREFIX}"
+            cmake -DCMAKE_INSTALL_PREFIX="${CUML_INSTALL_PREFIX}" -P cmake_install.cmake
+
+            # Build and install spdlog separately
+            cd /dev/shm
+            curl -L \
+              https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-${{ matrix.cuml }}/rapids-cmake/cpm/versions.json | \
+              jq '.["packages"]["spdlog"]' | \
+              tee cuml-spdlog-spec.json
+            SPDLOG_VERSION="$(jq '.["version"]' cuml-spdlog-spec.json | tr -d '"')"
+            SPDLOG_GIT_URL="$(jq '.["git_url"]' cuml-spdlog-spec.json | tr -d '"')"
+            git clone -b "v${SPDLOG_VERSION}" --single-branch "${SPDLOG_GIT_URL}"
+            mkdir spdlog/build
+            cd spdlog/build
+            cmake ..
+            cmake --build . --parallel 8
+            cmake -DCMAKE_INSTALL_PREFIX="${CUML_INSTALL_PREFIX}" -P cmake_install.cmake
+            cd /dev/shm
+            zip -r ${{ env.BUILD_ARTIFACT_NAME }}.zip ${{ env.BUILD_ARTIFACT_NAME }}
+          fi
+        shell: bash
         if: steps.check-release-exists.outputs.exists == 'false'
 
       - name: Release
